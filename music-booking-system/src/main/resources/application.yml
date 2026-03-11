@@ -1,0 +1,55 @@
+spring:
+    # 数据库配置文件
+  datasource:
+    url: jdbc:mysql://localhost:3306/classroombookingdb?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: your_password_here   # 请修改为你的 MySQL 密码
+  mail:
+    host: smtp.163.com  # 邮件服务器地址，如 smtp.qq.com / smtp.163.com
+    port: 25  # 端口号（SSL 用 465，STARTTLS 用 25/587）
+    username: your_email@163.com   # 你的邮箱账号
+    password: your_email_auth_code # 邮箱授权码（非登录密码）
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    encoding: UTF-8
+    mode: HTML
+  servlet:
+    multipart:
+      #最大请求大小
+      max-request-size: 100MB
+      #单个文件大小
+      max-file-size: 10MB
+  application:
+    name: classroom-booking-system
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    #方式三开启驼峰命名
+    map-underscore-to-camel-case: true
+  
+#配置事务管理日志
+logging:
+  level:
+    org.springframework.jdbc.support.JdbcTransactionManager: debug
+
+alioss:
+  endpoint:
+  accessKeyId:
+  bucketName:
+  accessKeySecret:
+server:
+  port: 8099
