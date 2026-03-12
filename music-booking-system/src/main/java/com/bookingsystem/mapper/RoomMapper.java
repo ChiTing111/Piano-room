@@ -23,7 +23,9 @@ public interface RoomMapper {
 
     Room getById(Long id);
 
-    @Update("update rooms set room_number = #{roomNumber}, name = #{name}, floor = #{floor}, status = #{status}, capacity = #{capacity}, room_type_id = #{roomTypeId}, facilities = #{facilities}, description = #{description}, updated_at = #{updatedAt} where id = #{id}")
+    @Update("update rooms set room_number = #{roomNumber}, name = #{name}, floor = #{floor}, status = #{status}, " +
+            "capacity = #{capacity}, room_type_id = #{roomTypeId}, facilities = #{facilities}, description = #{description}, " +
+            "longitude = #{longitude}, latitude = #{latitude}, check_in_radius = #{checkInRadius}, updated_at = #{updatedAt} where id = #{id}")
     void update(Room room);
 
     /**

@@ -1,6 +1,7 @@
 package com.bookingsystem.vo;
 
 import lombok.Data;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -14,6 +15,9 @@ public class RoomQueryVO {
     private String facilities; // 教室设施
     private Integer status; // 教室状态
     private String description; // 教室描述
+    private BigDecimal longitude; // 经度
+    private BigDecimal latitude; // 纬度
+    private Integer checkInRadius; // 签到允许半径（米）
     private LocalDateTime createdAt; // 创建时间
     private LocalDateTime updatedAt; // 更新时间
 }

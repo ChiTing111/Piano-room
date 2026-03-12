@@ -37,6 +37,9 @@ export interface Room {
   facilities: string
   status: number
   description: string
+  longitude?: number
+  latitude?: number
+  checkInRadius?: number
   createdAt?: string
   updatedAt?: string
 }

@@ -253,12 +253,63 @@ async function handleSignIn(r: Reservation) {
     ElMessage.warning('不在预约时间内，无法签到')
     return
   }
-  actionLoading.value = true
+  
+  // 获取用户位置
+  ElMessage.info('正在获取位置信息...')
+  
   try {
-    const res = await reservationApi.signIn(r.id)
-    if (res?.code === 1) { ElMessage.success('签到成功'); loadData() }
-    else ElMessage.error(res?.msg || '签到失败')
-  } finally { actionLoading.value = false }
+    const position = await getCurrentPosition()
+    const longitude = position.coords.longitude
+    const latitude = position.coords.latitude
+    
+    actionLoading.value = true
+    const res = await reservationApi.signIn(r.id, longitude, latitude)
+    if (res?.code === 1) { 
+      ElMessage.success('签到成功')
+      loadData() 
+    } else {
+      ElMessage.error(res?.msg || '签到失败')
+    }
+  } catch (error: any) {
+    if (error.code === 1) {
+      ElMessage.error('请允许获取位置信息才能签到')
+    } else if (error.code === 2) {
+      ElMessage.error('无法获取位置信息，请检查GPS是否开启')
+    } else if (error.code === 3) {
+      ElMessage.error('获取位置超时，请重试')
+    } else {
+      // 用户拒绝位置或获取失败，尝试无位置签到（兼容模式）
+      actionLoading.value = true
+      try {
+        const res = await reservationApi.signIn(r.id)
+        if (res?.code === 1) { 
+          ElMessage.success('签到成功（未验证位置）')
+          loadData() 
+        } else {
+          ElMessage.error(res?.msg || '签到失败')
+        }
+      } finally {
+        actionLoading.value = false
+      }
+    }
+  } finally { 
+    actionLoading.value = false 
+  }
+}
+
+// 获取当前位置的Promise封装
+function getCurrentPosition(): Promise<GeolocationPosition> {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject({ code: 0, message: '浏览器不支持地理定位' })
+      return
+    }
+    navigator.geolocation.getCurrentPosition(resolve, reject, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    })
+  })
 }
 
 async function handleSignOut(r: Reservation) {

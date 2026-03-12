@@ -40,7 +40,8 @@ export const reservationApi = {
   cancel: (id: number, reason?: string) => request.put(`/reservations/${id}/cancel`, { remarks: reason }),
   getAvailability: (roomId: number, date: string) =>
     request.get('/reservations/availability', { params: { roomId, date } }),
-  signIn: (id: number) => request.post(`/reservations/${id}/sign-in`),
+  signIn: (id: number, longitude?: number, latitude?: number) => 
+    request.post(`/reservations/${id}/sign-in`, null, { params: { longitude, latitude } }),
   signOut: (id: number) => request.post(`/reservations/${id}/sign-out`),
   listPracticeDuration: (params: ReservationQueryParams) =>
     request.get('/reservations/practiceduration', { params }),

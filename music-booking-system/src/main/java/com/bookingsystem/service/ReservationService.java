@@ -56,8 +56,12 @@ public interface ReservationService {
 
     /**
      * 预约签到：在预约时间内可签到，超过开始时间10分钟会提示超时签到但仍记录签到时间
+     * @param reservationId 预约ID
+     * @param longitude 用户经度（可选，位置签到用）
+     * @param latitude 用户纬度（可选，位置签到用）
      */
-    Result signIn(Long reservationId);
+    Result signIn(Long reservationId, Double longitude, Double latitude);
+
     /**
      * 预约签退：校验已签到、未签退、且在预约时间内
      */

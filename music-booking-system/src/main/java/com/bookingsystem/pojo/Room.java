@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -19,6 +20,9 @@ public class Room {
     private String facilities;
     private Integer status;
     private String description;
+    private BigDecimal longitude;  // 经度
+    private BigDecimal latitude;   // 纬度
+    private Integer checkInRadius; // 签到允许半径（米）
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

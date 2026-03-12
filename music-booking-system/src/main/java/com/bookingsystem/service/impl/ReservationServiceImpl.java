@@ -12,6 +12,7 @@ import com.bookingsystem.mapper.UserMapper;
 import com.bookingsystem.pojo.*;
 import com.bookingsystem.qo.AvailableRoomQO;
 import com.bookingsystem.service.ReservationService;
+import com.bookingsystem.utils.LocationUtil;
 import com.bookingsystem.vo.PracticeDurationVO;
 import com.bookingsystem.vo.UserReservationStatsVO;
 import com.github.pagehelper.Page;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -248,7 +250,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public Result signIn(Long reservationId) {
+    public Result signIn(Long reservationId, Double longitude, Double latitude) {
         Reservation reservation = reservationMapper.selectReservationsById(reservationId);
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime startTime = reservation.getStartTime();
@@ -265,6 +267,27 @@ public class ReservationServiceImpl implements ReservationService {
         }
         if (now.isAfter(endTime)) {
             return Result.error("预约已结束，无法签到");
+        }
+
+        // 位置验证（如果提供了位置信息）
+        if (longitude != null && latitude != null) {
+            Room room = roomMapper.getById(reservation.getRoomId());
+            if (room != null && room.getLatitude() != null && room.getLongitude() != null) {
+                Integer radius = room.getCheckInRadius() != null ? room.getCheckInRadius() : 100;
+                boolean inRange = LocationUtil.isWithinRange(
+                        room.getLatitude(), room.getLongitude(),
+                        BigDecimal.valueOf(latitude), BigDecimal.valueOf(longitude),
+                        radius
+                );
+                if (!inRange) {
+                    double distance = LocationUtil.calculateDistance(
+                            room.getLatitude().doubleValue(), room.getLongitude().doubleValue(),
+                            latitude, longitude
+                    );
+                    return Result.error("签到失败：您距离琴房" + LocationUtil.formatDistance(distance) + 
+                            "，超出允许范围（" + radius + "米）");
+                }
+            }
         }
 
         // 记录签到时间

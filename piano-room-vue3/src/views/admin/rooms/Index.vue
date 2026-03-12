@@ -84,6 +84,17 @@
         <el-form-item label="描述">
           <el-input v-model="form.description" type="textarea" :rows="3" />
         </el-form-item>
+        <el-divider content-position="left">位置信息（用于位置签到）</el-divider>
+        <el-form-item label="经度">
+          <el-input-number v-model="form.longitude" :precision="7" :step="0.0000001" style="width:200px" placeholder="如：116.397428" />
+        </el-form-item>
+        <el-form-item label="纬度">
+          <el-input-number v-model="form.latitude" :precision="7" :step="0.0000001" style="width:200px" placeholder="如：39.90923" />
+        </el-form-item>
+        <el-form-item label="签到范围">
+          <el-input-number v-model="form.checkInRadius" :min="10" :max="1000" style="width:150px" />
+          <span style="margin-left: 8px; color: #666;">米（默认100米）</span>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -112,7 +123,10 @@ const formRef = ref<FormInstance>()
 const query = reactive({ page: 1, pageSize: 10, roomNumberOrName: '', status: undefined as number | undefined })
 
 const form = reactive({
-  roomNumber: '', name: '', floor: 1, capacity: 10, facilities: '', description: ''
+  roomNumber: '', name: '', floor: 1, capacity: 10, facilities: '', description: '', status: 1,
+  longitude: undefined as number | undefined,
+  latitude: undefined as number | undefined,
+  checkInRadius: 100
 })
 
 const rules: FormRules = {
@@ -139,9 +153,16 @@ function resetQuery() {
 function openDialog(row: Room | null) {
   editingRoom.value = row
   if (row) {
-    Object.assign(form, { roomNumber: row.roomNumber, name: row.name, floor: row.floor, capacity: row.capacity, facilities: row.facilities, description: row.description })
+    Object.assign(form, { 
+      roomNumber: row.roomNumber, name: row.name, floor: row.floor, capacity: row.capacity, 
+      facilities: row.facilities, description: row.description, status: row.status,
+      longitude: row.longitude, latitude: row.latitude, checkInRadius: row.checkInRadius || 100
+    })
   } else {
-    Object.assign(form, { roomNumber: '', name: '', floor: 1, capacity: 10, facilities: '', description: '' })
+    Object.assign(form, { 
+      roomNumber: '', name: '', floor: 1, capacity: 10, facilities: '', description: '', status: 1,
+      longitude: undefined, latitude: undefined, checkInRadius: 100
+    })
   }
   dialogVisible.value = true
 }

@@ -143,11 +143,16 @@ public class ReservationController {
     }
 
     /**
-     * 签到
+     * 签到（支持位置验证）
+     * @param id 预约ID
+     * @param longitude 经度（可选）
+     * @param latitude 纬度（可选）
      */
     @PostMapping("/{id}/sign-in")
-    public Result signIn(@PathVariable("id") Long id) {
-        return reservationService.signIn(id);
+    public Result signIn(@PathVariable("id") Long id,
+                         @RequestParam(required = false) Double longitude,
+                         @RequestParam(required = false) Double latitude) {
+        return reservationService.signIn(id, longitude, latitude);
     }
     /**
      * 签退
