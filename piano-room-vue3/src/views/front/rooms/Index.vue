@@ -214,7 +214,8 @@
             @click="slot.available && !slot.isPast && openConfirmDialog(slot)"
           >
             <span class="slot-block-time">{{ slot.startTime }}<br/>{{ slot.endTime }}</span>
-            <span v-if="slot.available && !slot.isPast" class="slot-block-status free-text">可抢占</span>
+            <span v-if="slot.available && !slot.isPast && !slot.isStarted" class="slot-block-status free-text">可抢占</span>
+            <span v-else-if="slot.available && !slot.isPast && slot.isStarted" class="slot-block-status ongoing-text">进行中可约</span>
             <span v-else-if="slot.isPast" class="slot-block-status past-text">已过期</span>
             <span v-else class="slot-block-status booked-text">已预约</span>
             <span v-if="slot.available && !slot.isPast" class="pulse-dot-sm" />
@@ -448,7 +449,9 @@ function generateSlots(booked: any[]) {
       cur = dayjs(next.isoEnd)
       idx++
     } else {
-      const isPast = actualEnd.isBefore(now)
+      // 只要结束时间晚于当前时间，就显示为可预约（允许预约已经开始但还未结束的时间段）
+      const isEnded = actualEnd.isBefore(now)
+      const isStarted = cur.isBefore(now)
       slots.push({
         id: cur.toISOString(),
         startTime: cur.format('HH:mm'),
@@ -456,7 +459,8 @@ function generateSlots(booked: any[]) {
         isoStart: cur.toISOString(),
         isoEnd: actualEnd.toISOString(),
         available: true,
-        isPast,
+        isPast: isEnded,
+        isStarted,
       })
       cur = actualEnd
     }
@@ -1018,6 +1022,7 @@ onMounted(() => loadRooms())
 .free-text { color: #16a34a; font-weight: 600; }
 .booked-text { color: #9ca3af; }
 .past-text { color: #d1d5db; }
+.ongoing-text { color: #f59e0b; font-weight: 600; }
 
 .slot-lock-sm { font-size: 14px; }
 

@@ -109,7 +109,8 @@
                 >
                   <div class="slot-left">
                     <span class="slot-time">{{ slot.startTime }} - {{ slot.endTime }}</span>
-                    <span class="slot-hint" v-if="slot.available && !slot.isPast">点击立即抢占</span>
+                    <span class="slot-hint" v-if="slot.available && !slot.isPast && !slot.isStarted">点击立即抢占</span>
+                    <span class="slot-hint ongoing-hint" v-else-if="slot.available && !slot.isPast && slot.isStarted">进行中可约</span>
                     <span class="slot-hint past-hint" v-else-if="slot.isPast">已过期</span>
                     <span class="slot-hint booked-hint" v-else>已被预约</span>
                   </div>
@@ -282,7 +283,9 @@ function generateSlots(booked: any[]) {
       cur = dayjs(next.isoEnd)
       idx++
     } else {
-      const isPast = cur.isBefore(now)
+      // 只要结束时间晚于当前时间，就显示为可预约（允许预约已经开始但还未结束的时间段）
+      const isEnded = actualEnd.isBefore(now)
+      const isStarted = cur.isBefore(now)
       slots.push({
         id: `${cur.toISOString()}`,
         startTime: cur.format('HH:mm'),
@@ -290,7 +293,8 @@ function generateSlots(booked: any[]) {
         isoStart: cur.toISOString(),
         isoEnd: actualEnd.toISOString(),
         available: true,
-        isPast,
+        isPast: isEnded,
+        isStarted,
       })
       cur = actualEnd
     }
@@ -299,7 +303,9 @@ function generateSlots(booked: any[]) {
       while (cur.isBefore(end)) {
         const sEnd = cur.add(2, 'hour')
         const aEnd = sEnd.isAfter(end) ? end : sEnd
-        const isPast = cur.isBefore(now)
+        // 只要结束时间晚于当前时间，就显示为可预约
+        const isEnded = aEnd.isBefore(now)
+        const isStarted = cur.isBefore(now)
         slots.push({
           id: cur.toISOString(),
           startTime: cur.format('HH:mm'),
@@ -307,7 +313,8 @@ function generateSlots(booked: any[]) {
           isoStart: cur.toISOString(),
           isoEnd: aEnd.toISOString(),
           available: true,
-          isPast,
+          isPast: isEnded,
+          isStarted,
         })
         cur = aEnd
       }
@@ -536,6 +543,10 @@ onMounted(() => {
 }
 .past-hint {
   color: #d1d5db;
+}
+.ongoing-hint {
+  color: #f59e0b;
+  font-weight: 600;
 }
 
 .slot-right {

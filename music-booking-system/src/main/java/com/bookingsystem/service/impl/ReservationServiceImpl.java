@@ -97,8 +97,9 @@ public class ReservationServiceImpl implements ReservationService {
         if (startTime == null || endTime == null) {
             throw new BusinessException("请选择预约时段");
         }
-        if (startTime.isBefore(now)) {
-            throw new BusinessException("开始时间不能早于当前时间");
+        // 允许预约已经开始但还未结束的时间段（比如18:00-20:00，当前18:23仍可预约）
+        if (endTime.isBefore(now)) {
+            throw new BusinessException("预约时段已结束");
         }
         if (!startTime.isBefore(endTime)) {
             throw new BusinessException("结束时间必须晚于开始时间");
