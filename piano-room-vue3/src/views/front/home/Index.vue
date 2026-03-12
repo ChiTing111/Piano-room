@@ -471,6 +471,13 @@ onMounted(() => {
   font-size: 13px !important;
   color: var(--y2k-accent-pink) !important;
   font-family: var(--y2k-font-pixel) !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.8), 1px 1px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+.book-link:hover {
+  color: #ff69b4 !important;
+  text-shadow: 0 0 4px rgba(255, 105, 180, 0.6), 1px 1px 0 rgba(0, 0, 0, 0.3) !important;
 }
 
 /* ===== 预约流程 ===== */
