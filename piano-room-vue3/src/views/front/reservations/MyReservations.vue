@@ -82,7 +82,7 @@
                   <el-icon><Document /></el-icon> 详情
                 </el-button>
                 <el-button
-                  v-if="canCancel(r.status)"
+                  v-if="canCancel(r)"
                   text type="danger" size="small"
                   @click="handleCancel(r)"
                 >取消预约</el-button>
@@ -217,7 +217,10 @@ async function loadData() {
 
 function handleFilterChange() { page.value = 1; loadData() }
 
-function canCancel(status: string) { return status === 'approved' }
+function canCancel(r: Reservation) {
+  // 只有已批准且未签到的预约可以取消
+  return r.status === 'approved' && !r.signStartTime
+}
 
 function handleCancel(r: Reservation) {
   currentReservation.value = r

@@ -205,9 +205,17 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public Integer cancelReservation(Long id, String remark) {
+        // 先查询预约信息
+        Reservation reservation = reservationMapper.selectReservationsById(id);
+        if (reservation == null) {
+            throw new RuntimeException("预约不存在");
+        }
 
-        Reservation reservation = new Reservation();
-        reservation.setId(id);
+        // 已签到不能取消，只能签退
+        if (reservation.getSignStartTime() != null) {
+            throw new RuntimeException("已签到，无法取消预约，如需结束请进行签退");
+        }
+
         reservation.setStatus(ReservationStatusEnums.CANCELLED.getCode());
         reservation.setRemarks("取消原因：" + remark);
         Integer update = reservationMapper.update(reservation);

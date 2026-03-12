@@ -86,7 +86,8 @@ const statusLabelMap: Record<string, string> = {
 }
 
 const canCancel = computed(() =>
-  reservation.value ? reservation.value.status === 'approved' : false
+  // 只有已批准且未签到的预约可以取消
+  reservation.value ? reservation.value.status === 'approved' && !reservation.value.signStartTime : false
 )
 
 async function load() {
