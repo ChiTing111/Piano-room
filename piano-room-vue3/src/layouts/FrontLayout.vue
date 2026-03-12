@@ -16,6 +16,7 @@
             to="/"
             class="y2k-nav-link"
             :class="{ active: $route.path === '/' }"
+            exact-active-class="active"
             @mouseenter="playHover"
           >
             <span class="nav-icon">⌂</span>
@@ -336,9 +337,7 @@ function handleCommand(cmd: string) {
   transform: translate(-2px, -2px);
 }
 
-.y2k-nav-link.active,
-.y2k-nav-link.router-link-active,
-.y2k-nav-link.router-link-exact-active {
+.y2k-nav-link.active {
   background: var(--y2k-text);
   color: white;
   border-color: var(--y2k-text);
