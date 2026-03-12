@@ -53,6 +53,19 @@ public interface ReservationMapper {
                                @Param("startTime") LocalDateTime startTime,
                                @Param("endTime") LocalDateTime endTime);
 
+    /**
+     * 检查同一用户在同一时间段是否有其他预约
+     */
+    @Select("SELECT COUNT(*) FROM reservations " +
+            "WHERE user_id = #{userId} " +
+            "AND status = 'approved' " +
+            "AND ((start_time < #{endTime} AND end_time > #{startTime})) " +
+            "AND NOT (sign_start_time IS NULL AND TIMESTAMPDIFF(MINUTE, start_time, NOW()) > 10) " +
+            "FOR UPDATE")
+    int checkUserConflict(@Param("userId") Long userId,
+                          @Param("startTime") LocalDateTime startTime,
+                          @Param("endTime") LocalDateTime endTime);
+
     // 查找与时间段冲突且超过10分钟未签到的预约
     @Select("SELECT * FROM reservations " +
             "WHERE room_id = #{roomId} " +

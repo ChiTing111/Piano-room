@@ -61,6 +61,13 @@ public class ReservationServiceImpl implements ReservationService {
             throw new Exception("时间段已被预约");
         }
 
+        // 检查同一用户在同一时间段是否有其他预约
+        if (reservationMapper.checkUserConflict(userId,
+                dto.getStartTime(),
+                dto.getEndTime()) > 0) {
+            throw new Exception("您在该时间段已有其他预约，无法重复预约");
+        }
+
         Reservation reservation = new Reservation();
         BeanUtils.copyProperties(dto, reservation);
         reservation.setUserId(userId);
@@ -133,6 +140,11 @@ public class ReservationServiceImpl implements ReservationService {
         // 悲观锁冲突检测：SELECT FOR UPDATE 加行锁，高并发下只有一个请求能通过
         if (reservationMapper.checkConflictForUpdate(dto.getRoomId(), startTime, endTime) > 0) {
             throw new BusinessException("手速不够快！该时段已被他人抢占");
+        }
+
+        // 检查同一用户在同一时间段是否有其他预约
+        if (reservationMapper.checkUserConflict(userId, startTime, endTime) > 0) {
+            throw new BusinessException("您在该时间段已有其他预约，无法重复预约");
         }
 
         // 自动生成标题和目的
