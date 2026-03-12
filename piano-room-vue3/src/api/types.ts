@@ -31,18 +31,14 @@ export interface Room {
   id: number
   roomNumber: string
   name: string
-  buildingId: number
   floor: number
   capacity: number
   roomTypeId: number
-  type: string
   facilities: string
   status: number
   description: string
-  seats: string
-  departmentId: number
-  departmentName: string
-  buildingName: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface Reservation {
