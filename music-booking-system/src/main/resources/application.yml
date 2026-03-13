@@ -4,12 +4,12 @@ spring:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:classroombookingdb}?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: YOUR_DB_PASSWORD  # 改成自己的数据库密码
+    password: 123456  # 改成自己的密码
   mail:
     host: smtp.163.com # 邮件服务器地址
     port: 25  # 端口号（SSL 用 465，STARTTLS 用 25/587）
-    username: YOUR_EMAIL@163.com  # 改成自己的邮箱账号(可选)
-    password: YOUR_EMAIL_AUTH_CODE  # 改成自己的邮箱授权码
+    username: 18249011733@163.com  # 改成自己的邮箱(可选)
+    password: GBfKiRwfbM8P7cun  # 改成自己的授权码
     default-encoding: UTF-8
     properties:
       mail:
@@ -58,7 +58,10 @@ server:
 # 日志配置
 logging:
   level:
-    org.springframework.jdbc.support.JdbcTransactionManager: debug
+    root: INFO
+    com.bookingsystem: INFO
+    org.springframework.jdbc.support.JdbcTransactionManager: INFO
+    org.apache.ibatis: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

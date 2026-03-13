@@ -29,14 +29,18 @@ public class RoomTask {
         List<RoomMaintenance> list = roomMapper.getAllMaintenance();
         //遍历list集合
         for (RoomMaintenance roomMaintenance : list) {
-            if (roomMaintenance.getStatus() == "已取消"){
+            if ("已取消".equals(roomMaintenance.getStatus())){
                 continue;
             }
+            // 维修期间：琴房停用（status=0）
             if (roomMaintenance.getStartTime().isBefore(LocalDateTime.now()) && roomMaintenance.getEndTime().isAfter(LocalDateTime.now())){
-                roomMapper.setStatus(0,roomMaintenance.getRoomId());
+                roomMapper.setStatus(0, roomMaintenance.getRoomId());
+                log.info("琴房 {} 进入维修状态，已停用", roomMaintenance.getRoomId());
             }
+            // 维修结束：琴房启用（status=1）
             if (roomMaintenance.getEndTime().isBefore(LocalDateTime.now())){
-                roomMapper.setStatus(1,roomMaintenance.getRoomId());
+                roomMapper.setStatus(1, roomMaintenance.getRoomId());
+                log.info("琴房 {} 维修结束，已启用", roomMaintenance.getRoomId());
             }
         }
     }
@@ -46,7 +50,7 @@ public class RoomTask {
         List<RoomMaintenance> all = mapper.selectAll();
         LocalDateTime now = LocalDateTime.now();
         for (RoomMaintenance m : all) {
-            if (m.getStatus() == "已取消"){
+            if ("已取消".equals(m.getStatus())){
                 continue;
             }
             String status;
@@ -58,6 +62,7 @@ public class RoomTask {
                 status = "进行中";
             }
             mapper.updateStatus(m.getId(), status);
+            log.info("维修记录 {} 状态更新为 {}", m.getId(), status);
         }
     }
 }

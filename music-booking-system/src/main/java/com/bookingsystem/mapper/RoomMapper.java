@@ -34,8 +34,8 @@ public interface RoomMapper {
     @Update("update rooms set status = #{status}, updated_at = NOW() where id = #{id}")
     void updateStatus(@Param("id") Long id, @Param("status") Integer status);
 
-    @Insert("insert into room_maintenance (room_id, start_time, end_time, reason, maintenance_type, created_at, updated_at) " +
-            "values (#{roomId}, #{startTime}, #{endTime}, #{reason}, #{maintenanceType}, #{createdAt}, #{updatedAt})")
+    @Insert("insert into room_maintenance (room_id, start_time, end_time, reason, maintenance_type, status, created_at, updated_at) " +
+            "values (#{roomId}, #{startTime}, #{endTime}, #{reason}, #{maintenanceType}, #{status}, #{createdAt}, #{updatedAt})")
     void maintenance(RoomMaintenance roomMaintenance);
 
     /**

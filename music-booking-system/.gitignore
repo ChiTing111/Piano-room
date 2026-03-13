@@ -1,33 +1,20 @@
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# 敏感配置文件 - 不上传
+src/main/resources/application.yml
+src/main/resources/application-*.yml
+src/main/resources/application-*.properties
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# 但保留示例文件
+!src/main/resources/application-example.yml
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
+# 其他忽略项
+/target/
+/.idea/
+/*.iml
+/.classpath
+/.project
+/.settings/
+/.vscode/
+*.log
+*.class
+.DS_Store
+Thumbs.db

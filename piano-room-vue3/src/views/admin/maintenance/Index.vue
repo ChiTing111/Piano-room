@@ -12,9 +12,9 @@
         </el-form-item>
         <el-form-item label="维修类型">
           <el-select v-model="query.maintenanceType" clearable placeholder="全部" style="width:120px">
-            <el-option label="定期维护" value="regular" />
-            <el-option label="故障修复" value="repair" />
-            <el-option label="清洁保养" value="cleaning" />
+            <el-option label="定期维护" value="定期维护" />
+            <el-option label="故障修复" value="故障修复" />
+            <el-option label="清洁保养" value="清洁保养" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -26,14 +26,23 @@
 
     <el-card shadow="never">
       <el-table v-loading="loading" :data="tableData" stripe border>
-        <el-table-column label="琴房" prop="roomId" width="100" />
-        <el-table-column label="维修类型" prop="maintenanceType" width="120" />
-        <el-table-column label="原因" prop="reason" min-width="200" show-overflow-tooltip />
-        <el-table-column label="开始时间" prop="startTime" min-width="150" />
-        <el-table-column label="结束时间" prop="endTime" min-width="150" />
-        <el-table-column label="创建时间" prop="createdAt" min-width="150" />
+        <el-table-column label="琴房" prop="roomId" width="80" />
+        <el-table-column label="维修类型" prop="maintenanceType" width="100" />
+        <el-table-column label="状态" prop="status" width="80">
+          <template #default="{ row }">
+            <el-tag :type="getStatusType(row.status)">{{ row.status }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="原因" prop="reason" min-width="150" show-overflow-tooltip />
+        <el-table-column label="开始时间" prop="startTime" min-width="140" />
+        <el-table-column label="结束时间" prop="endTime" min-width="140" />
+        <el-table-column label="操作" width="120" fixed="right">
+          <template #default="{ row }">
+            <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+          </template>
+        </el-table-column>
       </el-table>
-      <el-pagination v-model:current-page="query.page" v-model:page-size="query.pageSize" :total="total" layout="total, prev, pager, next" class="pagination" @change="loadData" />
+      <el-pagination v-model:current-page="query.pageNum" v-model:page-size="query.pageSize" :total="total" layout="total, prev, pager, next" class="pagination" @change="loadData" />
     </el-card>
 
     <el-dialog v-model="dialogVisible" title="登记维修" width="500px">
@@ -43,16 +52,16 @@
         </el-form-item>
         <el-form-item label="维修类型">
           <el-select v-model="form.maintenanceType" style="width:160px">
-            <el-option label="定期维护" value="regular" />
-            <el-option label="故障修复" value="repair" />
-            <el-option label="清洁保养" value="cleaning" />
+            <el-option label="定期维护" value="定期维护" />
+            <el-option label="故障修复" value="故障修复" />
+            <el-option label="清洁保养" value="清洁保养" />
           </el-select>
         </el-form-item>
         <el-form-item label="开始时间">
-          <el-date-picker v-model="form.startTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width:100%" />
+          <el-date-picker v-model="form.startTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width:100%" :disabled-date="disabledDate" />
         </el-form-item>
         <el-form-item label="结束时间">
-          <el-date-picker v-model="form.endTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width:100%" />
+          <el-date-picker v-model="form.endTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width:100%" :disabled-date="disabledDate" />
         </el-form-item>
         <el-form-item label="原因">
           <el-input v-model="form.reason" type="textarea" :rows="3" />
@@ -68,7 +77,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import request from '@/utils/request'
 
@@ -80,8 +89,13 @@ const dialogVisible = ref(false)
 const dateRange = ref<string[]>([])
 const formRef = ref()
 
-const query = reactive({ page: 1, pageSize: 10, maintenanceType: '', startTime: '', endTime: '' })
-const form = reactive({ roomId: 1, maintenanceType: 'regular', startTime: '', endTime: '', reason: '' })
+const query = reactive({ pageNum: 1, pageSize: 10, maintenanceType: '', startTime: '', endTime: '' })
+const form = reactive({ roomId: 1, maintenanceType: '定期维护', startTime: '', endTime: '', reason: '' })
+
+// 禁用过去日期
+function disabledDate(time: Date) {
+  return time.getTime() < Date.now() - 8.64e7 // 禁用今天之前的日期
+}
 
 function handleDateChange(val: string[] | null) {
   query.startTime = val?.[0] || ''; query.endTime = val?.[1] || ''
@@ -103,6 +117,39 @@ async function handleSubmit() {
     if (res?.code === 1) { ElMessage.success('登记成功'); dialogVisible.value = false; loadData() }
     else ElMessage.error(res?.msg || '登记失败')
   } finally { submitting.value = false }
+}
+
+// 获取状态标签类型
+function getStatusType(status: string) {
+  switch (status) {
+    case '未开始': return 'info'
+    case '进行中': return 'warning'
+    case '已完成': return 'success'
+    case '已取消': return 'danger'
+    default: return 'info'
+  }
+}
+
+// 删除维修记录
+async function handleDelete(row: any) {
+  try {
+    await ElMessageBox.confirm(
+      `确定删除琴房 ${row.roomId} 的${row.maintenanceType}记录吗？`,
+      '确认删除',
+      { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+    )
+    const res = await request.delete('/maintenance/batch', { data: [row.id] })
+    if (res?.code === 1) {
+      ElMessage.success('删除成功')
+      loadData()
+    } else {
+      ElMessage.error(res?.msg || '删除失败')
+    }
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      console.error('删除失败:', error)
+    }
+  }
 }
 
 onMounted(() => loadData())

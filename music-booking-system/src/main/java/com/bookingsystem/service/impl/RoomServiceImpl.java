@@ -65,6 +65,10 @@ public class RoomServiceImpl implements RoomService {
     public void maintenance(RoomMaintenance roomMaintenance) {
         roomMaintenance.setCreatedAt(LocalDateTime.now());
         roomMaintenance.setUpdatedAt(LocalDateTime.now());
+        // 设置默认状态为"未开始"
+        if (roomMaintenance.getStatus() == null || roomMaintenance.getStatus().isEmpty()) {
+            roomMaintenance.setStatus("未开始");
+        }
 
         roomMapper.maintenance(roomMaintenance);
     }
