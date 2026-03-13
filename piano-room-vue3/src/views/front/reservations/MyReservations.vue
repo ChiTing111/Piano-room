@@ -275,27 +275,15 @@ async function handleSignIn(r: Reservation) {
       ElMessage.error(res?.msg || '签到失败')
     }
   } catch (error: any) {
+    // 位置获取失败的错误（非后端返回的错误）
     if (error.code === 'PERMISSION_DENIED') {
-      ElMessage.error('请允许获取位置信息才能签到')
+      ElMessage.error('签到失败：请允许获取位置信息才能签到')
     } else if (error.code === 'POSITION_UNAVAILABLE') {
-      ElMessage.error('无法获取位置信息，请检查GPS是否开启')
+      ElMessage.error('签到失败：无法获取位置信息，请检查GPS是否开启')
     } else if (error.code === 'TIMEOUT') {
-      ElMessage.error('获取位置超时，请重试')
-    } else {
-      // 定位失败，尝试无位置签到（兼容模式）
-      actionLoading.value = true
-      try {
-        const res = await reservationApi.signIn(r.id)
-        if (res?.code === 1) {
-          ElMessage.success('签到成功（未验证位置）')
-          loadData()
-        } else {
-          ElMessage.error(res?.msg || '签到失败')
-        }
-      } finally {
-        actionLoading.value = false
-      }
+      ElMessage.error('签到失败：获取位置超时，请重试')
     }
+    // 其他错误（如后端返回的错误）已在拦截器中提示，这里不再重复
   } finally {
     actionLoading.value = false
   }

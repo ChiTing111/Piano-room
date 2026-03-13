@@ -321,25 +321,30 @@ public class ReservationServiceImpl implements ReservationService {
             return Result.error("预约已结束，无法签到");
         }
 
-        // 位置验证（如果提供了位置信息）
-        if (longitude != null && latitude != null) {
-            Room room = roomMapper.getById(reservation.getRoomId());
-            if (room != null && room.getLatitude() != null && room.getLongitude() != null) {
-                Integer radius = room.getCheckInRadius() != null ? room.getCheckInRadius() : 100;
-                boolean inRange = LocationUtil.isWithinRange(
-                        room.getLatitude(), room.getLongitude(),
-                        BigDecimal.valueOf(latitude), BigDecimal.valueOf(longitude),
-                        radius
-                );
-                if (!inRange) {
-                    double distance = LocationUtil.calculateDistance(
-                            room.getLatitude().doubleValue(), room.getLongitude().doubleValue(),
-                            latitude, longitude
-                    );
-                    return Result.error("签到失败：您距离琴房" + LocationUtil.formatDistance(distance) +
-                            "，超出允许范围（" + radius + "米）");
-                }
-            }
+        // 位置验证（必须提供位置信息且在范围内）
+        if (longitude == null || latitude == null) {
+            return Result.error("签到失败：无法获取您的位置信息，请开启定位权限");
+        }
+        Room room = roomMapper.getById(reservation.getRoomId());
+        if (room == null) {
+            return Result.error("签到失败：琴房信息不存在");
+        }
+        if (room.getLatitude() == null || room.getLongitude() == null) {
+            return Result.error("签到失败：该琴房未设置位置信息，请联系管理员");
+        }
+        Integer radius = room.getCheckInRadius() != null ? room.getCheckInRadius() : 100;
+        boolean inRange = LocationUtil.isWithinRange(
+                room.getLatitude(), room.getLongitude(),
+                BigDecimal.valueOf(latitude), BigDecimal.valueOf(longitude),
+                radius
+        );
+        if (!inRange) {
+            double distance = LocationUtil.calculateDistance(
+                    room.getLatitude().doubleValue(), room.getLongitude().doubleValue(),
+                    latitude, longitude
+            );
+            return Result.error("签到失败：您距离琴房" + LocationUtil.formatDistance(distance) +
+                    "，超出允许范围（" + radius + "米）");
         }
 
         // 记录签到时间
