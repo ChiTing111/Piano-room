@@ -392,7 +392,7 @@ async function confirmQuickBook() {
       await loadTimeSlots()
     }
   } catch (e: any) {
-    ElMessage.error(e?.response?.data?.msg || '网络异常，请稍后重试')
+    // 错误已在拦截器中提示，这里只刷新时段
     await loadTimeSlots()
   } finally {
     booking.value = false
