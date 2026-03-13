@@ -144,6 +144,10 @@ import { reservationApi } from '@/api/reservation'
 import { useAuthStore } from '@/stores/auth'
 import type { Reservation } from '@/api/types'
 
+// 百度地图API类型声明
+declare const BMap: any
+declare const BMAP_STATUS_SUCCESS: number
+
 const router = useRouter()
 const authStore = useAuthStore()
 
@@ -253,38 +257,38 @@ async function handleSignIn(r: Reservation) {
     ElMessage.warning('不在预约时间内，无法签到')
     return
   }
-  
-  // 获取用户位置
+
+  // 获取用户位置（优先使用百度地图高精度定位）
   ElMessage.info('正在获取位置信息...')
-  
+
   try {
-    const position = await getCurrentPosition()
-    const longitude = position.coords.longitude
-    const latitude = position.coords.latitude
-    
+    const position = await getBaiduPosition()
+    const longitude = position.longitude
+    const latitude = position.latitude
+
     actionLoading.value = true
     const res = await reservationApi.signIn(r.id, longitude, latitude)
-    if (res?.code === 1) { 
+    if (res?.code === 1) {
       ElMessage.success('签到成功')
-      loadData() 
+      loadData()
     } else {
       ElMessage.error(res?.msg || '签到失败')
     }
   } catch (error: any) {
-    if (error.code === 1) {
+    if (error.code === 'PERMISSION_DENIED') {
       ElMessage.error('请允许获取位置信息才能签到')
-    } else if (error.code === 2) {
+    } else if (error.code === 'POSITION_UNAVAILABLE') {
       ElMessage.error('无法获取位置信息，请检查GPS是否开启')
-    } else if (error.code === 3) {
+    } else if (error.code === 'TIMEOUT') {
       ElMessage.error('获取位置超时，请重试')
     } else {
-      // 用户拒绝位置或获取失败，尝试无位置签到（兼容模式）
+      // 定位失败，尝试无位置签到（兼容模式）
       actionLoading.value = true
       try {
         const res = await reservationApi.signIn(r.id)
-        if (res?.code === 1) { 
+        if (res?.code === 1) {
           ElMessage.success('签到成功（未验证位置）')
-          loadData() 
+          loadData()
         } else {
           ElMessage.error(res?.msg || '签到失败')
         }
@@ -292,23 +296,70 @@ async function handleSignIn(r: Reservation) {
         actionLoading.value = false
       }
     }
-  } finally { 
-    actionLoading.value = false 
+  } finally {
+    actionLoading.value = false
   }
 }
 
-// 获取当前位置的Promise封装
-function getCurrentPosition(): Promise<GeolocationPosition> {
+// 使用百度地图获取高精度定位
+function getBaiduPosition(): Promise<{ longitude: number; latitude: number }> {
   return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject({ code: 0, message: '浏览器不支持地理定位' })
+    // 检查百度地图API是否加载
+    if (typeof BMap === 'undefined') {
+      // 降级使用浏览器原生定位
+      getBrowserPosition().then(resolve).catch(reject)
       return
     }
-    navigator.geolocation.getCurrentPosition(resolve, reject, {
+
+    const geolocation = new BMap.Geolocation()
+    geolocation.getCurrentPosition(function (this: any, r: any) {
+      const status = this.getStatus()
+      if (status === BMAP_STATUS_SUCCESS) {
+        // 百度地图定位成功
+        resolve({
+          longitude: r.point.lng,
+          latitude: r.point.lat
+        })
+      } else {
+        // 百度地图定位失败，降级使用浏览器定位
+        getBrowserPosition().then(resolve).catch(reject)
+      }
+    }, {
       enableHighAccuracy: true,
       timeout: 10000,
       maximumAge: 0
     })
+  })
+}
+
+// 浏览器原生定位（降级方案）
+function getBrowserPosition(): Promise<{ longitude: number; latitude: number }> {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject({ code: 'NOT_SUPPORTED', message: '浏览器不支持地理定位' })
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          longitude: position.coords.longitude,
+          latitude: position.coords.latitude
+        })
+      },
+      (error) => {
+        const codeMap: Record<number, string> = {
+          1: 'PERMISSION_DENIED',
+          2: 'POSITION_UNAVAILABLE',
+          3: 'TIMEOUT'
+        }
+        reject({ code: codeMap[error.code] || 'UNKNOWN_ERROR', message: error.message })
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    )
   })
 }
 
