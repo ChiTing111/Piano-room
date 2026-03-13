@@ -88,11 +88,19 @@ public class ReservationController {
 
     // 创建预约
     @PostMapping
-    public Result createReservation(@RequestBody  ReservationDTO dto) {
+    public Result createReservation(@RequestBody ReservationDTO dto, HttpServletRequest request) {
         try {
             log.info("创建预约:{}", dto);
-            //TODO userId 写死了
-            return Result.success( reservationService.createReservation(dto,dto.getUserId()));
+            // 从JWT中获取当前用户
+            String username = (String) request.getAttribute("username");
+            if (username == null) {
+                throw new BusinessException(401, "未登录");
+            }
+            User user = userMapper.selectByUsername(username);
+            if (user == null) {
+                throw new BusinessException(401, "用户不存在");
+            }
+            return Result.success(reservationService.createReservation(dto, user.getId()));
         } catch (Exception e) {
             return Result.error(e.getMessage());
         }

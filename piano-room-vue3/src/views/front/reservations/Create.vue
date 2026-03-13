@@ -109,7 +109,7 @@
               />
 
               <div class="form-actions">
-                <el-button size="large" @click="router.back()">返回</el-button>
+                <el-button type="info" plain size="large" @click="router.back()">← 返回</el-button>
                 <el-button
                   type="primary"
                   size="large"
@@ -324,10 +324,15 @@ async function handleSubmit() {
       if (res?.code === 1) {
         ElMessage.success('预约成功！已自动生效，请按时签到')
         router.push('/my-reservations')
-      } else if (res?.msg) {
-        conflictMsg.value = res.msg
-        ElMessage.error(res.msg)
+      } else {
+        const msg = res?.msg || '预约失败，请稍后重试'
+        conflictMsg.value = msg
+        ElMessage.error(msg)
       }
+    } catch (error: any) {
+      const msg = error?.response?.data?.msg || error?.message || '网络异常，请稍后重试'
+      conflictMsg.value = msg
+      ElMessage.error(msg)
     } finally {
       submitting.value = false
     }
@@ -379,17 +384,18 @@ onMounted(() => {
 }
 
 .submit-btn {
-  background: var(--gradient-warm) !important;
+  background: linear-gradient(135deg, #409eff, #1677ff) !important;
   border: none !important;
   color: #fff !important;
   font-weight: 600;
   min-width: 140px;
-  box-shadow: 0 4px 12px rgba(184, 115, 42, 0.3) !important;
+  font-size: 15px;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4) !important;
   transition: all 0.25s ease !important;
 }
 .submit-btn:hover {
   transform: translateY(-1px) !important;
-  box-shadow: 0 6px 20px rgba(184, 115, 42, 0.4) !important;
+  box-shadow: 0 6px 20px rgba(64, 158, 255, 0.5) !important;
 }
 
 /* 右侧信息卡 */
