@@ -72,9 +72,9 @@
         <div v-else class="hot-rooms-grid animate-stagger">
           <div
             v-for="room in hotRooms"
-            :key="room.id"
+            :key="room.roomId"
             class="room-card"
-            @click="router.push(`/rooms/${room.id}`)"
+            @click="router.push(`/rooms/${room.roomId}`)"
           >
             <div class="room-card-head">
               <div class="room-icon">🎹</div>
@@ -83,15 +83,15 @@
               </el-tag>
             </div>
             <div class="room-card-body">
-              <h3 class="room-name">{{ room.name }}</h3>
+              <h3 class="room-name">{{ room.roomName }}</h3>
               <div class="room-meta">
-                <span><el-icon><Location /></el-icon> {{ room.floor ? room.floor + '层' : '综合楼' }}</span>
-                <span><el-icon><User /></el-icon> {{ room.capacity || 1 }} 人</span>
+                <span><el-icon><Location /></el-icon> {{ room.buildingName || '综合楼' }}</span>
+                <span><el-icon><User /></el-icon> 热门度 {{ room.reservationCount || 0 }}</span>
               </div>
             </div>
             <div class="room-card-footer">
               <el-tag size="small" type="success">可预约</el-tag>
-              <el-button size="small" type="primary" text class="book-link" @click.stop="router.push(`/reservations/create/${room.id}`)">
+              <el-button size="small" type="primary" text class="book-link" @click.stop="router.push(`/reservations/create/${room.roomId}`)">
                 立即预约 →
               </el-button>
             </div>
