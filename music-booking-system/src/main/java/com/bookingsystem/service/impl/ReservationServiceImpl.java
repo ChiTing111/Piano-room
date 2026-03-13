@@ -60,6 +60,24 @@ public class ReservationServiceImpl implements ReservationService {
         return 7; // 默认7天
     }
 
+    /**
+     * 获取签到宽限时间（从系统配置读取，默认10分钟）
+     */
+    private int getSignInGraceMinutes() {
+        String setting = inMemoryDataStore.get("reservationSetting");
+        if (setting != null) {
+            try {
+                ReservationSetting reservationSetting = JSON.parseObject(setting, ReservationSetting.class);
+                if (reservationSetting != null && reservationSetting.getSignInGrace() != null) {
+                    return reservationSetting.getSignInGrace();
+                }
+            } catch (Exception e) {
+                // 解析失败使用默认值
+            }
+        }
+        return 10; // 默认10分钟
+    }
+
     // 获取某天已预约时段
     @Override
     public List<TimeSlot> getRoomAvailability(AvaDTO dto) {
@@ -278,16 +296,14 @@ public class ReservationServiceImpl implements ReservationService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime startTime = reservation.getStartTime();
         LocalDateTime endTime = reservation.getEndTime();
+        int signInGrace = getSignInGraceMinutes();
 
         // 已签到不可重复签到
         if (reservation.getSignStartTime() != null) {
             return Result.error("已签到");
         }
 
-        // 检查是否在预约时间内
-        if (now.isBefore(startTime)) {
-            return Result.error("预约未开始，无法签到");
-        }
+        // 检查是否在可签到时间内（预约结束前都可以签到）
         if (now.isAfter(endTime)) {
             return Result.error("预约已结束，无法签到");
         }
@@ -307,7 +323,7 @@ public class ReservationServiceImpl implements ReservationService {
                             room.getLatitude().doubleValue(), room.getLongitude().doubleValue(),
                             latitude, longitude
                     );
-                    return Result.error("签到失败：您距离琴房" + LocationUtil.formatDistance(distance) + 
+                    return Result.error("签到失败：您距离琴房" + LocationUtil.formatDistance(distance) +
                             "，超出允许范围（" + radius + "米）");
                 }
             }
@@ -317,8 +333,8 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setSignStartTime(now);
         reservationMapper.update(reservation);
 
-        // 检查是否超过开始时间10分钟
-        LocalDateTime allowedSignInTime = startTime.plusMinutes(10);
+        // 检查是否超过开始时间宽限期
+        LocalDateTime allowedSignInTime = startTime.plusMinutes(signInGrace);
         if (now.isAfter(allowedSignInTime)) {
             // 超时签到，但记录签到时间
             return Result.successMsg("超时签到");
