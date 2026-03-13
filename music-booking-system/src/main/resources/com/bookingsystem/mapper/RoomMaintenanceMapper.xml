@@ -39,7 +39,7 @@
     </insert>
 
     <update id="updateStatus">
-        UPDATE room_maintenance SET status = #{status}, updated_at = now() WHERE room_id = #{id}
+        UPDATE room_maintenance SET status = #{status}, updated_at = now() WHERE id = #{id}
     </update>
 
     <select id="selectAll" resultType="com.bookingsystem.pojo.RoomMaintenance">
