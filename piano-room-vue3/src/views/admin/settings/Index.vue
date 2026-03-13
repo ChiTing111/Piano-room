@@ -172,17 +172,41 @@ const securityForm = reactive({
 
 async function loadSettings() {
   try {
-    const res = await request.get('/system/settings/basic')
-    if (res?.code === 1 && res.data) {
+    // 加载基本设置
+    const basicRes = await request.get('/system/settings/basic')
+    if (basicRes?.code === 1 && basicRes.data) {
       Object.assign(basicForm, {
-        systemName: res.data.systemName || '',
-        contactEmail: res.data.contactEmail || '',
-        contactPhone: res.data.contactPhone || '',
-        announcement: res.data.announcement || '',
-        slotStartHour: res.data.slotStartHour ?? 8,
-        slotEndHour: res.data.slotEndHour ?? 22,
-        slotDurationMinutes: res.data.slotDurationMinutes ?? 120,
-        bookingResetHour: res.data.bookingResetHour ?? 0,
+        systemName: basicRes.data.systemName || '',
+        contactEmail: basicRes.data.contactEmail || '',
+        contactPhone: basicRes.data.contactPhone || '',
+        announcement: basicRes.data.announcement || '',
+        slotStartHour: basicRes.data.slotStartHour ?? 8,
+        slotEndHour: basicRes.data.slotEndHour ?? 22,
+        slotDurationMinutes: basicRes.data.slotDurationMinutes ?? 120,
+        bookingResetHour: basicRes.data.bookingResetHour ?? 0,
+      })
+    }
+  } catch { /* 静默 */ }
+
+  try {
+    // 加载预约设置
+    const resvRes = await request.get('/system/settings/reservation')
+    if (resvRes?.code === 1 && resvRes.data) {
+      Object.assign(reservationForm, {
+        maxAdvanceDays: resvRes.data.maxAdvanceDays ?? 7,
+        signInGrace: resvRes.data.signInGrace ?? 10,
+        maxNoShow: resvRes.data.maxNoShow ?? 3,
+      })
+    }
+  } catch { /* 静默 */ }
+
+  try {
+    // 加载安全设置
+    const secRes = await request.get('/system/settings/security')
+    if (secRes?.code === 1 && secRes.data) {
+      Object.assign(securityForm, {
+        tokenExpireHours: secRes.data.tokenExpireHours ?? 24,
+        minPasswordLength: secRes.data.minPasswordLength ?? 6,
       })
     }
   } catch { /* 静默 */ }

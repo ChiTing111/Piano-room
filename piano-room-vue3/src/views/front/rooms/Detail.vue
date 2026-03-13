@@ -30,8 +30,8 @@
                 <el-descriptions-item label="房间号">{{ room.roomNumber }}</el-descriptions-item>
                 <el-descriptions-item label="楼层">{{ room.floor }}层</el-descriptions-item>
                 <el-descriptions-item label="容量">{{ room.capacity }}人</el-descriptions-item>
-                <el-descriptions-item label="类型">{{ room.type || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="院系">{{ room.departmentName || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="类型">{{ (room as any).type || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="院系">{{ (room as any).departmentName || '-' }}</el-descriptions-item>
                 <el-descriptions-item label="开放时间">08:00 - 22:00</el-descriptions-item>
               </el-descriptions>
 

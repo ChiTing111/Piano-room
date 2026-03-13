@@ -30,7 +30,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/user/register",    // 注册接口
                         "/user/captcha",     // 验证码接口
                         "/user/email/code",
-                      "/system/settings/basic",
+                        "/system/settings/basic",
                         "/announcements",
                         "/classType",
                         "/reports/classroomUsageRate",
@@ -42,9 +42,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/room/search",
                         "/reservations/availability",
                         "/reservations/list",
-                        "/room/*"
-
-
+                        "/room/*",
+                        "/error",            // 错误页面，避免循环拦截
+                        "/50x.html",         // Nginx错误页面
+                        "/404.html"          // 404页面
                 );
     }
 }

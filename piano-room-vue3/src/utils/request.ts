@@ -24,6 +24,7 @@ let isShowingLoginPrompt = false
 instance.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data
+    // 处理401未授权错误
     if (res?.code === 401) {
       if (!isShowingLoginPrompt) {
         isShowingLoginPrompt = true
@@ -39,17 +40,53 @@ instance.interceptors.response.use(
               router.replace('/login')
             }
           })
+          .catch(() => {
+            // 用户取消，不做处理
+          })
           .finally(() => {
             isShowingLoginPrompt = false
           })
       }
       return Promise.reject(new Error(res.msg || '未登录'))
     }
+    // 处理业务错误（后端：1成功，0失败）
+    if (res?.code === 0) {
+      ElMessage.error(res.msg || '操作失败')
+      return Promise.reject(new Error(res.msg || '操作失败'))
+    }
+    // code为1或其他值都视为成功，直接返回
     return res
   },
   (error) => {
+    // 处理HTTP错误
+    let errorMsg = '网络请求失败'
+    if (error.response) {
+      // 服务器返回了错误状态码
+      switch (error.response.status) {
+        case 401:
+          errorMsg = '未登录或登录已过期'
+          break
+        case 403:
+          errorMsg = '没有权限执行此操作'
+          break
+        case 404:
+          errorMsg = '请求的资源不存在'
+          break
+        case 500:
+          errorMsg = '服务器内部错误'
+          break
+        default:
+          errorMsg = `请求失败: ${error.response.status}`
+      }
+    } else if (error.request) {
+      // 请求发送但没有收到响应
+      errorMsg = '服务器无响应，请检查网络连接'
+    } else {
+      // 请求配置出错
+      errorMsg = error.message || '请求配置错误'
+    }
     console.error('请求错误:', error)
-    ElMessage.error(error.message || '网络请求失败')
+    ElMessage.error(errorMsg)
     return Promise.reject(error)
   }
 )
