@@ -112,6 +112,19 @@ public interface ReservationMapper {
                           @Param("startTime") LocalDateTime startTime,
                           @Param("endTime") LocalDateTime endTime);
 
+    /**
+     * 检查用户是否有正在进行中的预约（已签到但未签退，且在指定时间段内）
+     * 注意：相邻时间段（如18:00-20:00和20:00-22:00）不视为重叠
+     */
+    @Select("SELECT COUNT(*) FROM reservations " +
+            "WHERE user_id = #{userId} " +
+            "AND sign_start_time IS NOT NULL " +
+            "AND sign_end_time IS NULL " +
+            "AND ((start_time < #{endTime} AND end_time > #{startTime}))")
+    int checkUserHasActiveReservation(@Param("userId") Long userId,
+                                     @Param("startTime") LocalDateTime startTime,
+                                     @Param("endTime") LocalDateTime endTime);
+
     // 查找与时间段冲突且超过宽限时间未签到的预约
     @Select("SELECT * FROM reservations " +
             "WHERE room_id = #{roomId} " +

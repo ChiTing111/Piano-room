@@ -113,6 +113,11 @@ public class ReservationServiceImpl implements ReservationService {
             throw new Exception("该时段剩余容量不足，已预约" + reservedAttendees + "人，容量" + room.getCapacity() + "人");
         }
 
+        // 检查用户是否已经有正在进行中的预约（已签到但未签退，且时间有重叠）
+        if (reservationMapper.checkUserHasActiveReservation(userId, dto.getStartTime(), dto.getEndTime()) > 0) {
+            throw new Exception("您已有正在进行中的预约，无法预约其他琴房，请先完成当前预约");
+        }
+
         // 检查同一用户是否已预约同一房间同一时段
         if (reservationMapper.checkUserRoomConflict(userId, dto.getRoomId(),
                 dto.getStartTime(), dto.getEndTime()) > 0) {
@@ -204,6 +209,11 @@ public class ReservationServiceImpl implements ReservationService {
         // 悲观锁冲突检测：SELECT FOR UPDATE 加行锁，高并发下只有一个请求能通过
         if (reservationMapper.checkConflictForUpdate(dto.getRoomId(), startTime, endTime, graceMinutes) > 0) {
             throw new BusinessException("手速不够快！该时段已被他人抢占");
+        }
+
+        // 检查用户是否已经有正在进行中的预约（已签到但未签退，且时间有重叠）
+        if (reservationMapper.checkUserHasActiveReservation(userId, startTime, endTime) > 0) {
+            throw new BusinessException("您已有正在进行中的预约，无法预约其他琴房，请先完成当前预约");
         }
 
         // 检查同一用户是否已预约同一房间同一时段
