@@ -515,18 +515,25 @@ onMounted(() => {
   align-items: center;
   border-top: 2px solid var(--y2k-border);
   padding-top: 12px;
+  background: var(--y2k-bg-dark);
 }
 
 .book-link {
-  padding: 0 !important;
+  padding: 4px 8px !important;
   font-size: 13px !important;
-  color: var(--y2k-accent-pink) !important;
+  color: white !important;
+  background: var(--y2k-accent-pink) !important;
   font-family: var(--y2k-font-pixel) !important;
   font-weight: 600 !important;
+  border-radius: 0 !important;
+  border: 2px solid var(--y2k-border) !important;
 }
 
 .book-link:hover {
-  color: #ff69b4 !important;
+  color: white !important;
+  background: var(--y2k-accent-cyan) !important;
+  transform: translate(1px, 1px) !important;
+  box-shadow: 1px 1px 0 var(--y2k-shadow) !important;
 }
 
 /* ===== 预约流程 ===== */
