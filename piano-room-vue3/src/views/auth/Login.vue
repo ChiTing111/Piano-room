@@ -48,8 +48,8 @@
         </div>
 
         <div class="form-header">
-          <h2 class="y2k-heading y2k-heading-md">用户登录</h2>
-          <p class="form-subtitle">请输入您的账号和密码</p>
+          <h2 class="y2k-heading y2k-heading-md login-title">用户登录</h2>
+          <p class="form-subtitle login-subtitle">请输入您的账号和密码</p>
         </div>
 
         <el-form
@@ -393,12 +393,24 @@ onMounted(() => {
 
 .y2k-form-card {
   width: 100%;
-  max-width: 360px;
+  max-width: 380px;
   background: var(--y2k-bg-card);
   border: 3px solid var(--y2k-border);
-  box-shadow: 6px 6px 0px var(--y2k-shadow);
-  padding: 32px;
+  box-shadow: 8px 8px 0px var(--y2k-shadow);
+  padding: 40px 32px;
   transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.y2k-form-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--y2k-accent-pink);
 }
 
 .y2k-form-card:hover {
@@ -444,8 +456,10 @@ onMounted(() => {
 }
 
 .form-header {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   text-align: center;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--y2k-border);
 }
 
 .form-subtitle {
@@ -455,16 +469,38 @@ onMounted(() => {
   margin-top: 8px;
 }
 
+.login-title {
+  color: var(--y2k-text) !important;
+  font-size: 28px !important;
+  margin-bottom: 8px !important;
+  text-align: center;
+  width: 100%;
+}
+
+.login-subtitle {
+  color: var(--y2k-text-secondary) !important;
+  font-size: 14px !important;
+  text-align: center;
+  margin-top: 4px !important;
+  opacity: 0.8;
+}
+
+/* 登录表单整体样式 */
+.y2k-login-form {
+  padding: 0 8px;
+}
+
 /* Y2K 表单样式 */
 .y2k-login-form :deep(.el-form-item__label) {
   font-family: var(--y2k-font-pixel) !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   color: var(--y2k-text) !important;
-  margin-bottom: 6px;
+  margin-bottom: 8px !important;
+  text-align: left !important;
 }
 
 .y2k-login-form :deep(.el-form-item) {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .y2k-login-form :deep(.el-input__wrapper) {
@@ -567,8 +603,8 @@ onMounted(() => {
 .form-extra {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 20px;
-  margin-top: -4px;
+  margin-bottom: 24px;
+  margin-top: -2px;
 }
 
 .y2k-link {
@@ -646,6 +682,7 @@ onMounted(() => {
 .y2k-btn-block {
   width: 100%;
   height: 48px;
+  font-size: 15px !important;
 }
 
 /* 注册提示 */

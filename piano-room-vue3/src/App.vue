@@ -195,6 +195,37 @@ onMounted(() => {
   opacity: 0.6;
 }
 
+/* 主题切换按钮 */
+.y2k-theme-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 84px;
+  width: 60px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-family: var(--y2k-font-pixel);
+  background: var(--y2k-bg-card);
+  border: 2px solid var(--y2k-border);
+  box-shadow: 4px 4px 0px var(--y2k-shadow);
+  cursor: pointer;
+  z-index: 9997;
+  transition: all 0.2s ease;
+}
+
+.y2k-theme-toggle:hover {
+  background: var(--y2k-accent-cyan);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px var(--y2k-shadow);
+}
+
+.y2k-theme-toggle:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px var(--y2k-shadow);
+}
+
 /* 重置 Element Plus 字体 */
 * {
   font-family: var(--y2k-font-body);
