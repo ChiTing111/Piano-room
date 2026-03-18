@@ -133,21 +133,20 @@ public class ReportServiceImpl implements ReportService {
         // 从数据库获取有预约的时段数据
         List<TimeSlotReport> reports = reservationMapper.getReservationCountsByTimeSlot(startDateTime, endDateTime);
 
-        // 创建一个映射，用于快速查找查询结果
-        Map<String, Integer> reportMap = reports.stream()
-                .collect(Collectors.toMap(TimeSlotReport::getTimeSlot, TimeSlotReport::getReservationCount));
-
-        // 为每个时间段检查是否有数据，如果没有，则将其设置为0
-        List<TimeSlotReport> result = new ArrayList<>();
-        for (String timeSlot : TIME_SLOTS) {
-            int count = reportMap.getOrDefault(timeSlot, 0); // 如果没有找到该时段，返回0
-            TimeSlotReport report = new TimeSlotReport();
-            report.setTimeSlot(timeSlot);
-            report.setReservationCount(count);
-            result.add(report);
+        // 如果数据库中没有数据，返回所有固定时间段的数据（数量为0）
+        if (reports.isEmpty()) {
+            List<TimeSlotReport> result = new ArrayList<>();
+            for (String timeSlot : TIME_SLOTS) {
+                TimeSlotReport report = new TimeSlotReport();
+                report.setTimeSlot(timeSlot);
+                report.setReservationCount(0);
+                result.add(report);
+            }
+            return result;
         }
 
-        return result;
+        // 如果数据库中有数据，直接返回数据库中的数据
+        return reports;
     }
 
     @Override

@@ -7,7 +7,7 @@ export const exportApi = {
   exportUsers: (params: { keyword?: string; userType?: string }) =>
     request.get('/export/users', { params, responseType: 'blob' }),
 
-  exportRooms: () => request.get('/export/rooms', { responseType: 'blob' }),
+  exportRooms: () => request.get('/room/export', { responseType: 'blob' }),
 }
 
 export function downloadBlob(blob: Blob, filename: string) {

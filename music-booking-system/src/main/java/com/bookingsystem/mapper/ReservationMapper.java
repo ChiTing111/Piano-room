@@ -208,22 +208,24 @@ public interface ReservationMapper {
     List<DayOfWeekCountVO> countReservationsByDayOfWeek();
 
 
-    @Select("SELECT CASE " +
-            "WHEN HOUR(start_time) BETWEEN 8 AND 9 THEN '08:00 - 10:00' " +
-            "WHEN HOUR(start_time) BETWEEN 10 AND 11 THEN '10:00 - 12:00' " +
-            "WHEN HOUR(start_time) BETWEEN 12 AND 13 THEN '12:00 - 14:00' " +
-            "WHEN HOUR(start_time) BETWEEN 14 AND 15 THEN '14:00 - 16:00' " +
-            "WHEN HOUR(start_time) BETWEEN 16 AND 17 THEN '16:00 - 18:00' " +
-            "WHEN HOUR(start_time) BETWEEN 18 AND 19 THEN '18:00 - 20:00' " +
-            "WHEN HOUR(start_time) BETWEEN 20 AND 21 THEN '20:00 - 22:00' " +
-            "END AS time_slot, " +
+    @Select("SELECT CONCAT( " +
+            "LPAD(hour_start, 2, '0'), ':', LPAD(minute_start, 2, '0'), ' - ', " +
+            "LPAD(hour_end, 2, '0'), ':', LPAD(minute_end, 2, '0') " +
+            ") AS time_slot, " +
             "COUNT(*) AS reservation_count " +
-            "FROM reservations " +
-            "WHERE start_time >= #{startDateTime} " +
-            "AND end_time <= #{endDateTime} " +
-            "AND status = 'approved' " +
-            "GROUP BY time_slot " +
-            "ORDER BY time_slot")
+            "FROM ( " +
+            "  SELECT *, " +
+            "    HOUR(start_time) AS hour_start, " +
+            "    MINUTE(start_time) AS minute_start, " +
+            "    HOUR(end_time) AS hour_end, " +
+            "    MINUTE(end_time) AS minute_end " +
+            "  FROM reservations " +
+            "  WHERE start_time >= #{startDateTime} " +
+            "  AND end_time <= #{endDateTime} " +
+            "  AND status IN ('approved', 'completed', 'occupied') " +
+            ") AS subquery " +
+            "GROUP BY hour_start, minute_start, hour_end, minute_end " +
+            "ORDER BY hour_start, minute_start, hour_end, minute_end")
     List<TimeSlotReport> getReservationCountsByTimeSlot(
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime);

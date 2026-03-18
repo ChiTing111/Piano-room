@@ -540,9 +540,6 @@ async function confirmQuickBook() {
       confirmDialogVisible.value = false
       ElMessage.success('预约成功！时段已锁定，请按时到场签到')
       await loadSlots()
-    } else {
-      ElMessage.error(res?.msg || '预约失败')
-      await loadSlots()
     }
   } catch (e: any) {
     // 错误已在拦截器中提示，这里只刷新时段

@@ -152,8 +152,8 @@ async function loadStats() {
 async function loadRecentReservations() {
   recentLoading.value = true
   try {
-    const res = await request.get('/reservations/list', { params: { page: 1, pageSize: 8 } })
-    recentReservations.value = Array.isArray(res?.data?.records) ? res.data.records : []
+    const res = await request.get('/reservations/list', { params: { pageNum: 1, pageSize: 8 } })
+    recentReservations.value = Array.isArray(res?.data?.rows) ? res.data.rows : []
   } catch {
     recentReservations.value = []
   } finally {
