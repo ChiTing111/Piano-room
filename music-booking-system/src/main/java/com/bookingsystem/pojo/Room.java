@@ -25,4 +25,7 @@ public class Room {
     private Integer checkInRadius; // 签到允许半径（米）
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    
+    // 添加地理位置信息状态字段
+    private Boolean hasLocationInfo; // 是否设置了地理位置信息
 }

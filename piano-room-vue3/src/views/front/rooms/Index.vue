@@ -87,9 +87,9 @@
                 <span class="room-icon">♪</span>
                 <span
                   class="y2k-status-badge"
-                  :class="room.status === 1 ? 'badge-ok' : 'badge-off'"
+                  :class="getRoomStatusClass(room)"
                 >
-                  {{ room.status === 1 ? '可预约' : '维护中' }}
+                  {{ getRoomStatusText(room) }}
                 </span>
               </div>
 
@@ -113,11 +113,11 @@
               <div class="y2k-card-footer">
                 <button
                   class="y2k-book-btn"
-                  :class="room.status !== 1 ? 'y2k-book-btn-disabled' : ''"
-                  :disabled="room.status !== 1"
-                  @click.stop="room.status === 1 && openSlotDialog(room)"
+                  :class="isRoomBookable(room) ? '' : 'y2k-book-btn-disabled'"
+                  :disabled="!isRoomBookable(room)"
+                  @click.stop="isRoomBookable(room) && openSlotDialog(room)"
                 >
-                  {{ room.status === 1 ? '【 立即抢占 】' : '暂不可用' }}
+                  {{ isRoomBookable(room) ? '【 立即抢占 】' : '暂不可用' }}
                 </button>
               </div>
             </div>
@@ -141,15 +141,15 @@
                   <td>{{ room.buildingName || '综合楼' }}</td>
                   <td>{{ room.capacity || '-' }} 人</td>
                   <td>
-                    <span class="y2k-status-badge" :class="room.status === 1 ? 'badge-ok' : 'badge-off'">
-                      {{ room.status === 1 ? '可预约' : '维护中' }}
+                    <span class="y2k-status-badge" :class="getRoomStatusClass(room)">
+                      {{ getRoomStatusText(room) }}
                     </span>
                   </td>
                   <td>
                     <button
                       class="y2k-table-btn"
-                      :disabled="room.status !== 1"
-                      @click="room.status === 1 && openSlotDialog(room)"
+                      :disabled="!isRoomBookable(room)"
+                      @click="isRoomBookable(room) && openSlotDialog(room)"
                     >立即抢占</button>
                   </td>
                 </tr>
@@ -388,6 +388,41 @@ function handleReset() {
   filter.date = dayjs().format('YYYY-MM-DD')
   filter.keyword = ''
   loadRooms()
+}
+
+import type { Room } from '@/api/types'
+
+// 根据琴房状态和地理位置信息返回状态文本
+function getRoomStatusText(room: Room) {
+  // 如果琴房状态为维护中，显示"维护中"
+  if (room.status !== 1) {
+    return '维护中'
+  }
+  // 如果琴房没有地理位置信息，显示"暂不可预约"
+  if (room.hasLocationInfo === false || room.hasLocationInfo === undefined) {
+    return '暂不可预约'
+  }
+  // 如果琴房状态正常且有地理位置信息，显示"可预约"
+  return '可预约'
+}
+
+// 根据琴房状态和地理位置信息返回状态CSS类
+function getRoomStatusClass(room: Room) {
+  // 如果琴房状态为维护中，返回badge-off类
+  if (room.status !== 1) {
+    return 'badge-off'
+  }
+  // 如果琴房没有地理位置信息，返回badge-warning类（需要添加到CSS中）
+  if (room.hasLocationInfo === false || room.hasLocationInfo === undefined) {
+    return 'badge-warning'
+  }
+  // 如果琴房状态正常且有地理位置信息，返回badge-ok类
+  return 'badge-ok'
+}
+
+// 判断琴房是否可以预约（状态正常且有地理位置信息）
+function isRoomBookable(room: Room) {
+  return room.status === 1 && room.hasLocationInfo === true
 }
 
 // ===== 打开时段弹窗 =====
@@ -781,6 +816,7 @@ onMounted(() => loadRooms())
 
 .badge-ok { background: #32cd32; border-color: #228b22; color: white; }
 .badge-off { background: #808080; border-color: #555; color: white; }
+.badge-warning { background: #fbbf24; border-color: #f59e0b; color: white; }
 
 .y2k-card-body {
   padding: 14px 16px;

@@ -20,4 +20,7 @@ public class RoomQueryVO {
     private Integer checkInRadius; // 签到允许半径（米）
     private LocalDateTime createdAt; // 创建时间
     private LocalDateTime updatedAt; // 更新时间
+    
+    // 添加字段表示是否设置了地理位置信息
+    private Boolean hasLocationInfo; // 是否设置了地理位置信息
 }

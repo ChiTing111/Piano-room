@@ -133,6 +133,7 @@
               )
               AND status = 'approved'
         )
+        AND longitude IS NOT NULL AND latitude IS NOT NULL  <!-- 添加地理位置检查 -->
         <if test="roomTypeId != null and roomTypeId != ''">
             AND room_type_id = #{roomTypeId}
         </if>

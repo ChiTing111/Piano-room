@@ -42,6 +42,13 @@
             </el-tag>
           </template>
         </el-table-column>
+        <el-table-column label="位置信息" width="100">
+          <template #default="{ row }">
+            <el-tag :type="hasLocationInfo(row) ? 'success' : 'warning'" size="small">
+              {{ hasLocationInfo(row) ? '已设置' : '未设置' }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
             <el-button text size="small" @click="openDialog(row)">编辑</el-button>
@@ -195,6 +202,12 @@ async function handleDelete(row: Room) {
   const res = await roomApi.delete(row.id)
   if (res?.code === 1) { ElMessage.success('删除成功'); loadData() }
   else ElMessage.error(res?.msg || '删除失败')
+}
+
+// 检查琴房是否设置了位置信息
+function hasLocationInfo(row: Room) {
+  return row.latitude !== undefined && row.longitude !== undefined && 
+         row.latitude !== null && row.longitude !== null
 }
 
 async function handleExport() {

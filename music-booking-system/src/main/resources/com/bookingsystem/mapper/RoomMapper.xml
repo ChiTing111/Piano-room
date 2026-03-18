@@ -37,7 +37,11 @@
             r.latitude,
             r.check_in_radius as checkInRadius,
             r.created_at as createdAt,
-            r.updated_at as updatedAt
+            r.updated_at as updatedAt,
+            CASE 
+                WHEN r.longitude IS NOT NULL AND r.latitude IS NOT NULL THEN TRUE 
+                ELSE FALSE 
+            END AS hasLocationInfo
         FROM rooms r
         <where>
             <if test="status != null">
@@ -61,8 +65,15 @@
             r.facilities,
             r.status,
             r.description,
+            r.longitude,
+            r.latitude,
+            r.check_in_radius as checkInRadius,
             r.created_at as createdAt,
-            r.updated_at as updatedAt
+            r.updated_at as updatedAt,
+            CASE 
+                WHEN r.longitude IS NOT NULL AND r.latitude IS NOT NULL THEN TRUE 
+                ELSE FALSE 
+            END AS hasLocationInfo
         FROM rooms r
         ORDER BY r.capacity DESC
     </select>
@@ -170,9 +181,51 @@
             LIMIT #{limit}
     </select>
     <select id="getById" resultType="com.bookingsystem.pojo.Room">
-        select r.*
+        select 
+            r.id,
+            r.room_number as roomNumber,
+            r.name,
+            r.floor,
+            r.capacity,
+            r.room_type_id as roomTypeId,
+            r.facilities,
+            r.status,
+            r.description,
+            r.longitude,
+            r.latitude,
+            r.check_in_radius as checkInRadius,
+            r.created_at as createdAt,
+            r.updated_at as updatedAt,
+            CASE
+                WHEN r.longitude IS NOT NULL AND r.latitude IS NOT NULL THEN TRUE
+                ELSE FALSE
+            END AS hasLocationInfo
         from rooms r
         where r.id = #{id}
+    </select>
+
+    <select id="getAllRoomsForExport" resultType="com.bookingsystem.vo.RoomQueryVO">
+        SELECT
+            r.id,
+            r.room_number as roomNumber,
+            r.name,
+            r.floor,
+            r.capacity,
+            r.room_type_id as roomTypeId,
+            r.facilities,
+            r.status,
+            r.description,
+            r.longitude,
+            r.latitude,
+            r.check_in_radius as checkInRadius,
+            r.created_at as createdAt,
+            r.updated_at as updatedAt,
+            CASE 
+                WHEN r.longitude IS NOT NULL AND r.latitude IS NOT NULL THEN TRUE 
+                ELSE FALSE 
+            END AS hasLocationInfo
+        FROM rooms r
+        ORDER BY r.id
     </select>
 
 </mapper>

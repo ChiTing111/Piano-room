@@ -42,6 +42,7 @@ export interface Room {
   checkInRadius?: number
   createdAt?: string
   updatedAt?: string
+  hasLocationInfo?: boolean
 }
 
 export interface Reservation {

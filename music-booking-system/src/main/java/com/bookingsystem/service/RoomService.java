@@ -8,6 +8,8 @@ import com.bookingsystem.pojo.RoomMaintenance;
 import com.bookingsystem.vo.HotRoomVO;
 import com.bookingsystem.vo.RoomQueryVO;
 
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 public interface RoomService {
@@ -32,4 +34,8 @@ public interface RoomService {
     PageResult<RoomQueryVO> searchAvailableRooms(RoomDTO roomDTO);
 
     List<HotRoomVO> getTodayHotRooms();
+
+    List<RoomQueryVO> getAllRoomsForExport();
+
+    void exportRoomsToExcel(List<RoomQueryVO> rooms, HttpServletResponse response) throws IOException;
 }

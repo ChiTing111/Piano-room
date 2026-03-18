@@ -71,6 +71,8 @@ public interface RoomMapper {
 
     List<RoomQueryVO> searchRooms(Long buildingId, Long roomTypeId,Long departmentId, Integer minCapacity, Integer maxCapacity, LocalDateTime startTime, LocalDateTime endTime);
 
+    List<RoomQueryVO> getAllRoomsForExport();
+
     @Select("SELECT\n" +
             "    SUM(CASE WHEN r.id IN (\n" +
             "        SELECT DISTINCT res.room_id\n" +

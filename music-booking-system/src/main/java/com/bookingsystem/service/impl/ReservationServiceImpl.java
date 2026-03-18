@@ -106,6 +106,12 @@ public class ReservationServiceImpl implements ReservationService {
         if (room == null) {
             throw new Exception("琴房不存在");
         }
+        
+        // 检查琴房是否设置了地理位置信息，如果没有设置则不允许预约（因为无法进行位置验证签到）
+        if (room.getLatitude() == null || room.getLongitude() == null) {
+            throw new Exception("该琴房未设置地理位置信息，无法预约（需要进行位置验证签到）");
+        }
+        
         Integer reservedAttendees = reservationMapper.getReservedAttendees(
                 dto.getRoomId(), dto.getStartTime(), dto.getEndTime(), graceMinutes);
         int newAttendees = dto.getAttendees() != null ? dto.getAttendees() : 1;
@@ -183,6 +189,11 @@ public class ReservationServiceImpl implements ReservationService {
         Room room = roomMapper.getById(dto.getRoomId());
         if (room == null || room.getStatus() != 1) {
             throw new BusinessException("琴房不可用");
+        }
+        
+        // 检查琴房是否设置了地理位置信息，如果没有设置则不允许预约（因为无法进行位置验证签到）
+        if (room.getLatitude() == null || room.getLongitude() == null) {
+            throw new BusinessException("该琴房未设置地理位置信息，无法预约（需要进行位置验证签到）");
         }
 
         // 校验用户封禁状态
@@ -458,6 +469,11 @@ public class ReservationServiceImpl implements ReservationService {
             Room room = roomMapper.getById(dto.getRoomId());
             if (room == null || room.getStatus() != 1) {
                 throw new BusinessException("教室不可用");
+            }
+            
+            // 检查琴房是否设置了地理位置信息，如果没有设置则不允许预约（因为无法进行位置验证签到）
+            if (room.getLatitude() == null || room.getLongitude() == null) {
+                throw new BusinessException("该琴房未设置地理位置信息，无法预约（需要进行位置验证签到）");
             }
         }
 

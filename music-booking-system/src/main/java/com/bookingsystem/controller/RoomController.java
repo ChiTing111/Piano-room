@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -159,6 +161,15 @@ public class RoomController {
     public Result getTodayHotRooms() {
         List<HotRoomVO> hotRooms = roomService.getTodayHotRooms();
         return Result.success(hotRooms);
+    }
+
+    /**
+     * 导出房间信息
+     */
+    @GetMapping("/export")
+    public void exportRooms(HttpServletResponse response) throws IOException {
+        List<RoomQueryVO> rooms = roomService.getAllRoomsForExport();
+        roomService.exportRoomsToExcel(rooms, response);
     }
 
 
