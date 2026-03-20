@@ -50,10 +50,27 @@ public class ReservationTask {
                 continue; // 已处理或不存在，跳过
             }
 
-            // 未签到，标记为违约
-            r.setStatus("occupied");
-            reservationMapper.update(r);
-            penaltyService.recordViolation(r.getUserId());
+            // 检查预约是否在时间段开始后创建，如果是，则不应标记为违约
+            // 因为用户在时间段开始后预约，应该在预约创建后的宽限时间内签到
+            if (r.getCreatedAt().isAfter(r.getStartTime())) {
+                // 预约是在时间段开始后创建的，检查是否在预约创建后的宽限时间内
+                LocalDateTime deadline = r.getCreatedAt().plusMinutes(signInGraceMinutes);
+                if (now.isAfter(deadline) && current.getSignStartTime() == null) {
+                    // 超过预约创建后的宽限时间且未签到，标记为违约
+                    r.setStatus("occupied");
+                    reservationMapper.update(r);
+                    penaltyService.recordViolation(r.getUserId());
+                }
+                // 否则，仍在预约创建后的宽限时间内，不处理
+            } else {
+                // 预约是在时间段开始前创建的，按原逻辑处理
+                if (current.getSignStartTime() == null) {
+                    // 未签到，标记为违约
+                    r.setStatus("occupied");
+                    reservationMapper.update(r);
+                    penaltyService.recordViolation(r.getUserId());
+                }
+            }
         }
 
         // 2. 处理已签到的预约 → completed
